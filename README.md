@@ -1,84 +1,93 @@
-# 📐 Photomath Vectorial — Aplicación Móvil & Backend
+# 📐 Photomath Vectorial — Backend & Aplicativo Móvil
 
-**Photomath Vectorial** es una aplicación móvil web (PWA) impulsada por inteligencia artificial y cálculo simbólico (**SymPy** + **FastAPI**), diseñada para resolver problemas matemáticos de **Álgebra, Cálculo Univariable y Cálculo Vectorial** (Gradiente \(\nabla f\), Divergencia \(\nabla \cdot \mathbf{F}\), Rotacional \(\nabla \times \mathbf{F}\), Integrales Dobles y Triples) **directamente desde la cámara de tu celular** con explicaciones paso a paso en formato LaTeX (**KaTeX**).
+**Photomath Vectorial** es una solución completa (Backend Python + Aplicativo Móvil Web PWA en React) que permite capturar fotografías de ejercicios matemáticos desde un teléfono celular y obtener su **resolución explicada paso a paso** con soporte para:
+- **Álgebra**: Simplificación de expresiones y solución de ecuaciones lineales y cuadráticas.
+- **Cálculo Univariable**: Derivadas de cualquier orden e integrales definidas/indefinidas.
+- **Cálculo Vectorial**: Gradiente (\(\nabla f\)), Divergencia (\(\nabla \cdot \mathbf{F}\)), Rotacional (\(\nabla \times \mathbf{F}\)), Integrales Dobles (\(\iint\)) e Integrales Triples (\(\iiint\)).
 
 ---
 
-## 📱 ¿Cómo funciona la Aplicación?
+## 📱 ¿Cómo Iniciar y Abrir en tu Celular (Paso a Paso)?
 
-1. **Captura con la Cámara**: Apuntas la cámara de tu celular hacia una ecuación o problema escrito a mano o impreso.
-2. **Reconocimiento OCR (IA)**: El sistema analiza la foto y transcribe automáticamente la expresión matemática a código LaTeX.
-3. **Resolución Simbólica Paso a Paso**: El motor de SymPy resuelve la ecuación matemáticamente y genera la demostración paso a paso.
-4. **Visualización con KaTeX**: La pantalla de tu celular muestra la solución formateada de manera elegante con notación matemática avanzada.
+Para ejecutar la aplicación completa, abre **3 terminales** en tu computadora:
+
+### Paso 1: Iniciar el Backend (Servidor Python)
+En la **Terminal 1**:
+```powershell
+cd photomath_vectorial
+```
+```
+.\venv\Scripts\activate
+```
+```
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Paso 2: Iniciar la Aplicación Móvil (Frontend React)
+En la **Terminal 2**:
+```powershell
+cd mobile_app
+```
+```
+npm run dev -- --host
+```
+
+### Paso 3: Generar el Enlace para el Celular
+En la **Terminal 3**:
+```powershell
+ssh -R 80:localhost:5173 serveo.net
+```
+Copia el enlace `https://xxxx.serveousercontent.com` que aparecerá en pantalla y ábrelo desde el navegador de tu celular. **¡La cámara se activará al instante para escanear ecuaciones!**
 
 ---
 
 ## 📁 Estructura del Proyecto
 
 ```
-proyectoCalcuPro/
-├── photomath_vectorial/          # 🐍 BACKEND (Python / FastAPI / SymPy / OCR)
-│   ├── app/
-│   │   ├── main.py               # Servidor FastAPI + configuración CORS
-│   │   ├── api/routes.py         # Endpoints REST (/solve, /ocr, /health)
-│   │   ├── services/ocr_service.py # OCR para transcripción de fotos (Mathpix / Gemini / GPT-4o)
-│   │   └── services/solver/      # Motor matemático paso a paso (Álgebra, Cálculo, Vectorial)
-│   ├── tests/                    # Tests de corrección matemática con pytest
-│   └── requirements.txt          # Dependencias de Python
-│
-└── mobile_app/                   # 📱 FRONTEND MÓVIL (React + Vite + KaTeX)
-    ├── src/
-    │   ├── components/
-    │   │   ├── CameraScanner.jsx # Visor de cámara en vivo con recuadro láser rojo tipo Photomath
-    │   │   ├── LatexEditor.jsx   # Editor y vista previa de expresiones con KaTeX
-    │   │   └── SolutionViewer.jsx# Explicación del resultado paso a paso con confeti
-    │   └── services/api.js       # Conexión con el servidor backend
-    └── package.json
+photomath_vectorial/
+├── app/
+│   ├── main.py                     # Entry point de FastAPI + CORS
+│   ├── core/
+│   │   └── config.py                # Configuración (.env, API keys)
+│   ├── models/
+│   │   └── schemas.py               # Contratos Pydantic (request/response)
+│   ├── services/
+│   │   ├── classifier.py            # Clasificador de tipo de problema
+│   │   ├── ocr_service.py           # Adaptador OCR (Mathpix / Gemini Vision / GPT-4o)
+│   │   └── solver/                  # ── EL MOTOR MATEMÁTICO ──
+│   │       ├── base.py              #   Step / SolverResult / SolverError
+│   │       ├── algebra.py           #   Parseo seguro + álgebra
+│   │       ├── calculus.py          #   Derivadas e integrales univariable
+│   │       └── vector_calculus.py   #   Gradiente, divergencia, rotacional, ∬, ∭
+│   └── api/
+│       └── routes.py                # Endpoints REST (/solve, /ocr, /health)
+├── tests/
+│   └── test_solver.py               # Suite de 10 tests unitarios con pytest
+└── requirements.txt
 ```
 
 ---
 
-## 🚀 Guía de Inicio Paso a Paso (Para usar en tu Celular)
+## 🛠️ Endpoints Principales (API REST)
 
-Para ejecutar toda la aplicación necesitas tener **3 terminales** abiertas en tu computadora:
-
-### 1️⃣ Terminal 1: Iniciar el Servidor Backend (Matemática)
-```powershell
-cd photomath_vectorial
-.\venv\Scripts\activate
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-*(Documentación interactiva disponible en `http://localhost:8000/docs`)*
-
----
-
-### 2️⃣ Terminal 2: Iniciar la App Móvil (Frontend)
-```powershell
-cd mobile_app
-npm run dev -- --host
-```
-
----
-
-### 3️⃣ Terminal 3: Generar el Enlace para tu Celular
-Elige una de las siguientes dos opciones para conectar tu teléfono:
-
-#### **Opción A (Recomendada): Usar Túnel SSH Instantáneo**
-```powershell
-ssh -R 80:localhost:5173 serveo.net
-```
-*(Te dará un enlace que empieza con `https://xxxx.serveousercontent.com`. Cópialo y ábrelo en el navegador de tu celular).*
-
-#### **Opción B: Usar tu Red WiFi Local**
-Ingresa desde el navegador de tu celular a:
-`https://TU_IP_LOCAL:5173` *(ejemplo: `https://192.168.1.15:5173`)*.
+| Método | Ruta | Descripción |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/solve` | Clasifica automáticamente y resuelve (texto libre) |
+| `POST` | `/api/v1/solve/algebra` | Simplificación / ecuaciones algebraicas |
+| `POST` | `/api/v1/solve/derivative` | Derivadas de orden \(n\) |
+| `POST` | `/api/v1/solve/integral` | Integrales indefinidas / definidas |
+| `POST` | `/api/v1/solve/vector/gradient` | Gradiente \(\nabla f\) |
+| `POST` | `/api/v1/solve/vector/divergence` | Divergencia \(\nabla \cdot \mathbf{F}\) |
+| `POST` | `/api/v1/solve/vector/curl` | Rotacional \(\nabla \times \mathbf{F}\) |
+| `POST` | `/api/v1/solve/vector/double-integral` | Integrales dobles \(\iint\) |
+| `POST` | `/api/v1/solve/vector/triple-integral` | Integrales triples \(\iiint\) |
+| `POST` | `/api/v1/ocr` | Transcribe imagen codificada en base64 a LaTeX |
+| `GET` | `/health` | Estado del servicio |
 
 ---
 
 ## 🧪 Pruebas Unitarias
-Para verificar la exactitud del motor matemático:
+
 ```powershell
-cd photomath_vectorial
-.\venv\Scripts\activate
 pytest tests/ -v
 ```
